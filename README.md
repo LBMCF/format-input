@@ -30,6 +30,7 @@ This script reads the exported (.csv) files from [Scopus](https://www.scopus.com
   $ sudo pip3 install argparse
   $ sudo pip3 install xlsxwriter
   $ sudo pip3 install pandas
+  $ sudo pip3 install colorama
 ```
 
 ## Installation
@@ -40,7 +41,7 @@ To clone and run this application, you'll need [Git](https://git-scm.com) instal
 
 ```bash
   # Clone this repository
-  $ git clone https://github.com/glenjasper/format-input.git
+  $ git clone https://github.com/LBMCF/format-input.git
 
   # Go into the repository
   $ cd format-input
@@ -51,7 +52,7 @@ To clone and run this application, you'll need [Git](https://git-scm.com) instal
 
 ### Download
 
-You can [download](https://github.com/glenjasper/format-input/archive/master.zip) the latest installable version of _format-input_.
+You can [download](https://github.com/LBMCF/format-input/archive/master.zip) the latest installable version of _format-input_.
 
 ## How To Use
 
@@ -88,7 +89,7 @@ You can [download](https://github.com/glenjasper/format-input/archive/master.zip
 * [Glen Jasper](https://github.com/glenjasper)
 
 ## Organization
-* [Molecular and Computational Biology of Fungi Laboratory](http://lbmcf.pythonanywhere.com) (LBMCF, ICB - **UFMG**, Belo Horizonte, Brazil).
+* [Molecular and Computational Biology of Fungi Laboratory](https://sites.icb.ufmg.br/lbmcf/index.html) (LBMCF, ICB - **UFMG**, Belo Horizonte, Brazil).
 
 ## License
 
