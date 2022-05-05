@@ -67,16 +67,16 @@ You can [download](https://github.com/LBMCF/format-input/archive/master.zip) the
 
   optional arguments:
     -h, --help            show this help message and exit
-
     -t {scopus,wos,pubmed,pmc,dimensions,txt}, --type_file {scopus,wos,pubmed,pmc,dimensions,txt}
-                        scopus: Indicates that the file (.csv) was exported from
-                        Scopus | wos: Indicates that the file (.csv) was exported
-                        from Web of Science | pubmed: Indicates that the file (.csv)
-                        was exported from PubMed | pmc: Indicates that the file
-                        (.txt) was exported from PubMed Central, necessarily in
-                        MEDLINE format | dimensions: Indicates that the file (.csv)
-                        was exported from Dimensions | txt: Indicates that it is a
-                        text file (.txt)
+                          scopus: Indicates that the file (.csv) was exported
+                          from Scopus | wos: Indicates that the file (.csv) was
+                          exported from Web of Science | pubmed: Indicates that
+                          the file (.csv) was exported from PubMed | pmc:
+                          Indicates that the file (.txt) was exported from
+                          PubMed Central, necessarily in MEDLINE format |
+                          dimensions: Indicates that the file (.csv) was
+                          exported from Dimensions | txt: Indicates that it is a
+                          text file (.txt)
     -i INPUT_FILE, --input_file INPUT_FILE
                           Input file .csv or .txt
     -o OUTPUT, --output OUTPUT
