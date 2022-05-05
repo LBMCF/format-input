@@ -67,7 +67,7 @@ You can [download](https://github.com/LBMCF/format-input/archive/master.zip) the
 
   optional arguments:
     -h, --help            show this help message and exit
-                        
+
     -t {scopus,wos,pubmed,pmc,dimensions,txt}, --type_file {scopus,wos,pubmed,pmc,dimensions,txt}
                         scopus: Indicates that the file (.csv) was exported from
                         Scopus | wos: Indicates that the file (.csv) was exported
