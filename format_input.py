@@ -28,8 +28,8 @@ def menu(args):
 
     ofi.INPUT_FILE = os.path.join(file_path, file_name)
     if not ofi.check_path(ofi.INPUT_FILE):
-        ofi.show_print("%s: error: the file '%s' doesn't exist" % (os.path.basename(__file__), ofi.INPUT_FILE), showdate = False)
-        ofi.show_print("%s: error: the following arguments are required: -i/--input_file" % os.path.basename(__file__), showdate = False)
+        ofi.show_print("%s: error: the file '%s' doesn't exist" % (os.path.basename(__file__), ofi.INPUT_FILE), showdate = False, font = oscihub.YELLOW)
+        ofi.show_print("%s: error: the following arguments are required: -i/--input_file" % os.path.basename(__file__), showdate = False, font = oscihub.YELLOW)
         exit()
 
     if args.output:
@@ -41,7 +41,7 @@ def menu(args):
         ofi.OUTPUT_PATH = os.path.join(output_path, output_name)
         created = ofi.create_directory(ofi.OUTPUT_PATH)
         if not created:
-            ofi.show_print("%s: error: Couldn't create folder '%s'" % (os.path.basename(__file__), ofi.OUTPUT_PATH), showdate = False)
+            ofi.show_print("%s: error: Couldn't create folder '%s'" % (os.path.basename(__file__), ofi.OUTPUT_PATH), showdate = False, font = oscihub.YELLOW)
             exit()
     else:
         ofi.OUTPUT_PATH = os.getcwd().strip()
