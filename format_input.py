@@ -12,7 +12,7 @@ import pandas as pd
 from colorama import init
 init()
 
-def menu(args):
+def menu():
     parser = argparse.ArgumentParser(description = "This script reads the exported (.csv|.txt) files from Scopus, Web of Science, PubMed, PubMed Central or Dimensions databases and turns each of them into a new file with an unique format. This script will ignore duplicated records.", epilog = "Thank you!")
     parser.add_argument("-t", "--type_file", choices = ofi.ARRAY_TYPE, required = True, type = str.lower, help = ofi.mode_information(ofi.ARRAY_TYPE, ofi.ARRAY_DESCRIPTION))
     parser.add_argument("-i", "--input_file", required = True, help = "Input file .csv or .txt")
@@ -28,8 +28,8 @@ def menu(args):
 
     ofi.INPUT_FILE = os.path.join(file_path, file_name)
     if not ofi.check_path(ofi.INPUT_FILE):
-        ofi.show_print("%s: error: the file '%s' doesn't exist" % (os.path.basename(__file__), ofi.INPUT_FILE), showdate = False, font = oscihub.YELLOW)
-        ofi.show_print("%s: error: the following arguments are required: -i/--input_file" % os.path.basename(__file__), showdate = False, font = oscihub.YELLOW)
+        ofi.show_print("%s: error: the file '%s' doesn't exist" % (os.path.basename(__file__), ofi.INPUT_FILE), showdate = False, font = ofi.YELLOW)
+        ofi.show_print("%s: error: the following arguments are required: -i/--input_file" % os.path.basename(__file__), showdate = False, font = ofi.YELLOW)
         exit()
 
     if args.output:
@@ -41,7 +41,7 @@ def menu(args):
         ofi.OUTPUT_PATH = os.path.join(output_path, output_name)
         created = ofi.create_directory(ofi.OUTPUT_PATH)
         if not created:
-            ofi.show_print("%s: error: Couldn't create folder '%s'" % (os.path.basename(__file__), ofi.OUTPUT_PATH), showdate = False, font = oscihub.YELLOW)
+            ofi.show_print("%s: error: Couldn't create folder '%s'" % (os.path.basename(__file__), ofi.OUTPUT_PATH), showdate = False, font = ofi.YELLOW)
             exit()
     else:
         ofi.OUTPUT_PATH = os.getcwd().strip()
@@ -821,10 +821,10 @@ class FormatInput:
 
         return fw_tmp
 
-def main(args):
+def main():
     try:
         start = ofi.start_time()
-        menu(args)
+        menu()
 
         ofi.LOG_FILE = os.path.join(ofi.OUTPUT_PATH, ofi.LOG_NAME)
         ofi.XLS_FILE = os.path.join(ofi.OUTPUT_PATH, ofi.XLS_FILE.replace('<type>', ofi.TYPE_FILE))
@@ -868,4 +868,4 @@ def main(args):
 
 if __name__ == '__main__':
     ofi = FormatInput()
-    main(sys.argv)
+    main()
