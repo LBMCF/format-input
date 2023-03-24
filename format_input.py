@@ -79,7 +79,7 @@ class FormatInput:
 
         # Scopus
         self.scopus_col_authors = 'Authors'
-        self.scopus_col_title = 'Titles'
+        self.scopus_col_title = 'Title'
         self.scopus_col_year = 'Year'
         self.scopus_col_doi = 'DOI'
         self.scopus_col_document_type = 'Document Type'
