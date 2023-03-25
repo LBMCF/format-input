@@ -85,6 +85,7 @@ class FormatInput:
         self.scopus_col_document_type = 'Document Type'
         self.scopus_col_language = 'Language of Original Document'
         self.scopus_col_cited_by = 'Cited by'
+        self.scopus_col_abstract = 'Abstract'
         # self.scopus_col_access_type = 'Access Type'
         # self.scopus_col_source = 'Source'
 
@@ -96,6 +97,7 @@ class FormatInput:
         self.wos_col_document_type = 'DT'
         self.wos_col_language = 'LA'
         self.wos_col_cited_by = 'TC'
+        self.wos_col_abstract = 'AB'
 
         # PubMed
         self.pubmed_col_authors = 'Authors'
@@ -105,6 +107,7 @@ class FormatInput:
         self.pubmed_col_document_type = '' # Doesn't exist
         self.pubmed_col_language = '' # Doesn't exist
         self.pubmed_col_cited_by = '' # Doesn't exist
+        self.pubmed_col_abstract = '' # Doesn't exist
 
         # PubMed Central
         self.pmc_col_authors = 'Authors'
@@ -114,6 +117,7 @@ class FormatInput:
         self.pmc_col_document_type = 'Document Type'
         self.pmc_col_language = 'Language'
         self.pmc_col_cited_by = '' # Doesn't exist
+        self.pmc_col_abstract = 'Abstract'
 
         # Dimensions
         self.dimensions_col_authors = 'Authors'
@@ -123,16 +127,18 @@ class FormatInput:
         self.dimensions_col_document_type = 'Publication Type'
         self.dimensions_col_language = '' # Doesn't exist
         self.dimensions_col_cited_by = 'Times cited'
+        self.dimensions_col_abstract = 'Abstract'
 
         # Xls Summary
         self.XLS_FILE = 'input_<type>.xlsx'
-        self.XLS_SHEET_DETAIL = 'Detail'
+        self.XLS_SHEET_UNIQUE = 'Unique'
         self.XLS_SHEET_WITHOUT_DOI = 'Without DOI'
         self.XLS_SHEET_DUPLICATES = 'Duplicates'
 
         # Xls Columns
         self.xls_col_item = 'Item'
         self.xls_col_title = 'Title'
+        self.xls_col_abstract = 'Abstract'
         self.xls_col_year = 'Year'
         self.xls_col_doi = 'DOI'
         self.xls_col_document_type = 'Document Type'
@@ -146,6 +152,7 @@ class FormatInput:
 
         self.xls_columns_csv = [self.xls_col_item,
                                 self.xls_col_title,
+                                self.xls_col_abstract,
                                 self.xls_col_year,
                                 self.xls_col_doi,
                                 self.xls_col_document_type,
@@ -294,7 +301,7 @@ class FormatInput:
                     collect[self.xls_col_duplicate_type] = self.xls_val_by_doi
                     collect_duplicate_doi.update({idx: collect})
 
-        collect_papers = {self.XLS_SHEET_DETAIL: collect_unique,
+        collect_papers = {self.XLS_SHEET_UNIQUE: collect_unique,
                           self.XLS_SHEET_DUPLICATES: collect_duplicate_doi}
 
         return collect_papers
@@ -321,6 +328,7 @@ class FormatInput:
         df = pd.read_csv(filepath_or_buffer = _input_file, sep = separator, header = 0, index_col = False) # low_memory = False
         # df = df.where(pd.notnull(df), None)
         df = df.replace({np.nan: None})
+        # print(df)
 
         # Get DOIs
         collect_unique_doi = {}
@@ -349,6 +357,7 @@ class FormatInput:
             if self.TYPE_FILE == self.TYPE_SCOPUS:
                 collect[self.xls_col_authors] = row[self.scopus_col_authors].strip() if row[self.scopus_col_authors] else row[self.scopus_col_authors]
                 collect[self.xls_col_title] = row[self.scopus_col_title].strip() if row[self.scopus_col_title] else row[self.scopus_col_title]
+                collect[self.xls_col_abstract] = row[self.scopus_col_abstract].strip() if row[self.scopus_col_abstract] else row[self.scopus_col_abstract]
                 collect[self.xls_col_year] = row[self.scopus_col_year]
                 collect[self.xls_col_doi] = doi
                 collect[self.xls_col_document_type] = row[self.scopus_col_document_type].strip() if row[self.scopus_col_document_type] else row[self.scopus_col_document_type]
@@ -357,6 +366,7 @@ class FormatInput:
             elif self.TYPE_FILE == self.TYPE_WOS:
                 collect[self.xls_col_authors] = row[self.wos_col_authors].strip() if row[self.wos_col_authors] else row[self.wos_col_authors]
                 collect[self.xls_col_title] = row[self.wos_col_title].strip() if row[self.wos_col_title] else row[self.wos_col_title]
+                collect[self.xls_col_abstract] = row[self.wos_col_abstract].strip() if row[self.wos_col_abstract] else row[self.wos_col_abstract]
                 collect[self.xls_col_year] = row[self.wos_col_year]
                 collect[self.xls_col_doi] = doi
                 collect[self.xls_col_document_type] = row[self.wos_col_document_type].strip() if row[self.wos_col_document_type] else row[self.wos_col_document_type]
@@ -365,6 +375,7 @@ class FormatInput:
             elif self.TYPE_FILE == self.TYPE_PUBMED:
                 collect[self.xls_col_authors] = row[self.pubmed_col_authors].strip() if row[self.pubmed_col_authors] else row[self.pubmed_col_authors]
                 collect[self.xls_col_title] = row[self.pubmed_col_title].strip() if row[self.pubmed_col_title] else row[self.pubmed_col_title]
+                collect[self.xls_col_abstract] = None
                 collect[self.xls_col_year] = row[self.pubmed_col_year]
                 collect[self.xls_col_doi] = doi
                 collect[self.xls_col_document_type] = None
@@ -373,6 +384,7 @@ class FormatInput:
             elif self.TYPE_FILE == self.TYPE_PUBMED_CENTRAL:
                 collect[self.xls_col_authors] = row[self.pmc_col_authors].strip() if row[self.pmc_col_authors] else row[self.pmc_col_authors]
                 collect[self.xls_col_title] = row[self.pmc_col_title].strip() if row[self.pmc_col_title] else row[self.pmc_col_title]
+                collect[self.xls_col_abstract] = row[self.pmc_col_abstract].strip() if row[self.pmc_col_abstract] else row[self.pmc_col_abstract]
                 collect[self.xls_col_year] = row[self.pmc_col_year]
                 collect[self.xls_col_doi] = doi
                 collect[self.xls_col_document_type] = row[self.pmc_col_document_type].strip() if row[self.pmc_col_document_type] else row[self.pmc_col_document_type]
@@ -381,6 +393,7 @@ class FormatInput:
             elif self.TYPE_FILE == self.TYPE_DIMENSIONS:
                 collect[self.xls_col_authors] = row[self.dimensions_col_authors].strip() if row[self.dimensions_col_authors] else row[self.dimensions_col_authors]
                 collect[self.xls_col_title] = row[self.dimensions_col_title].strip() if row[self.dimensions_col_title] else row[self.dimensions_col_title]
+                collect[self.xls_col_abstract] = row[self.dimensions_col_abstract].strip() if row[self.dimensions_col_abstract] else row[self.dimensions_col_abstract]
                 collect[self.xls_col_year] = row[self.dimensions_col_year]
                 collect[self.xls_col_doi] = doi
                 collect[self.xls_col_document_type] = row[self.dimensions_col_document_type].strip() if row[self.dimensions_col_document_type] else row[self.dimensions_col_document_type]
@@ -426,7 +439,7 @@ class FormatInput:
         collect_duplicate.update(collect_duplicate_title)
         collect_duplicate = {item[0]: item[1] for item in sorted(collect_duplicate.items())}
 
-        collect_papers = {self.XLS_SHEET_DETAIL: collect_unique,
+        collect_papers = {self.XLS_SHEET_UNIQUE: collect_unique,
                           self.XLS_SHEET_WITHOUT_DOI: collect_without_doi,
                           self.XLS_SHEET_DUPLICATES: collect_duplicate}
 
@@ -462,15 +475,16 @@ class FormatInput:
                     worksheet.set_column(first_col = 2, last_col = 2, width = 19) # Column C:C
             else:
                 worksheet.set_column(first_col = 0, last_col = 0, width = 7)  # Column A:A
-                worksheet.set_column(first_col = 1, last_col = 1, width = 40) # Column B:B
-                worksheet.set_column(first_col = 2, last_col = 2, width = 8)  # Column C:C
-                worksheet.set_column(first_col = 3, last_col = 3, width = 33) # Column D:D
-                worksheet.set_column(first_col = 4, last_col = 4, width = 18) # Column E:E
-                worksheet.set_column(first_col = 5, last_col = 5, width = 12) # Column F:F
-                worksheet.set_column(first_col = 6, last_col = 6, width = 11) # Column G:G
-                worksheet.set_column(first_col = 7, last_col = 7, width = 36) # Column H:H
+                worksheet.set_column(first_col = 1, last_col = 1, width = 30) # Column B:B
+                worksheet.set_column(first_col = 2, last_col = 2, width = 33) # Column C:C
+                worksheet.set_column(first_col = 3, last_col = 3, width = 8)  # Column D:D
+                worksheet.set_column(first_col = 4, last_col = 4, width = 30) # Column E:E
+                worksheet.set_column(first_col = 5, last_col = 5, width = 18) # Column F:F
+                worksheet.set_column(first_col = 6, last_col = 6, width = 12) # Column G:G
+                worksheet.set_column(first_col = 7, last_col = 7, width = 11) # Column H:H
+                worksheet.set_column(first_col = 8, last_col = 8, width = 18) # Column I:I
                 if sheet_type == self.XLS_SHEET_DUPLICATES:
-                    worksheet.set_column(first_col = 8, last_col = 8, width = 19) # Column I:I
+                    worksheet.set_column(first_col = 9, last_col = 9, width = 17) # Column J:J
 
             icol = 0
             for irow, (index, item) in enumerate(dictionary.items(), start = 1):
@@ -486,14 +500,15 @@ class FormatInput:
                 else:
                     worksheet.write(irow, icol + 0, index, styles_rows)
                     worksheet.write(irow, icol + 1, item[self.xls_col_title], styles_rows)
-                    worksheet.write(irow, icol + 2, item[self.xls_col_year], styles_rows)
-                    worksheet.write(irow, icol + 3, col_doi, styles_rows)
-                    worksheet.write(irow, icol + 4, item[self.xls_col_document_type], styles_rows)
-                    worksheet.write(irow, icol + 5, item[self.xls_col_language], styles_rows)
-                    worksheet.write(irow, icol + 6, item[self.xls_col_cited_by], styles_rows)
-                    worksheet.write(irow, icol + 7, item[self.xls_col_authors], styles_rows)
+                    worksheet.write(irow, icol + 2, item[self.xls_col_abstract], styles_rows)
+                    worksheet.write(irow, icol + 3, item[self.xls_col_year], styles_rows)
+                    worksheet.write(irow, icol + 4, col_doi, styles_rows)
+                    worksheet.write(irow, icol + 5, item[self.xls_col_document_type], styles_rows)
+                    worksheet.write(irow, icol + 6, item[self.xls_col_language], styles_rows)
+                    worksheet.write(irow, icol + 7, item[self.xls_col_cited_by], styles_rows)
+                    worksheet.write(irow, icol + 8, item[self.xls_col_authors], styles_rows)
                     if sheet_type == self.XLS_SHEET_DUPLICATES:
-                        worksheet.write(irow, icol + 8, duplicate_type, styles_rows)
+                        worksheet.write(irow, icol + 9, duplicate_type, styles_rows)
 
         workbook = xlsxwriter.Workbook(self.XLS_FILE)
 
@@ -505,7 +520,7 @@ class FormatInput:
                                                  'valign': 'vcenter'})
         cell_format_row = workbook.add_format({'text_wrap': True, 'valign': 'top'})
 
-        create_sheet(workbook, self.XLS_SHEET_DETAIL, data_paper[self.XLS_SHEET_DETAIL], cell_format_title, cell_format_row)
+        create_sheet(workbook, self.XLS_SHEET_UNIQUE, data_paper[self.XLS_SHEET_UNIQUE], cell_format_title, cell_format_row)
         if self.TYPE_FILE != self.TYPE_TXT:
             create_sheet(workbook, self.XLS_SHEET_WITHOUT_DOI, data_paper[self.XLS_SHEET_WITHOUT_DOI], cell_format_title, cell_format_row)
         create_sheet(workbook, self.XLS_SHEET_DUPLICATES, data_paper[self.XLS_SHEET_DUPLICATES], cell_format_title, cell_format_row)
@@ -795,27 +810,27 @@ class FormatInput:
                                              prefix = 'medline_output_',
                                              suffix = '.csv')
 
-        fw_tmp.write('"%s","%s","%s","%s","%s","%s","%s","%s","%s"\n' % ('PMID',
-                                                                         self.pmc_col_title,
-                                                                         self.pmc_col_authors,
-                                                                         self.pmc_col_year,
-                                                                         'PMCID',
-                                                                         self.pmc_col_doi,
-                                                                         self.pmc_col_language,
-                                                                         self.pmc_col_document_type,
-                                                                         'Journal Type'))
+        fw_tmp.write('"%s","%s","%s","%s","%s","%s","%s","%s","%s","%s"\n' % ('PMID',
+                                                                              self.pmc_col_title,
+                                                                              self.pmc_col_authors,
+                                                                              self.pmc_col_year,
+                                                                              'PMCID',
+                                                                              self.pmc_col_doi,
+                                                                              self.pmc_col_language,
+                                                                              self.pmc_col_document_type,
+                                                                              'Journal Type',
+                                                                              self.pmc_col_abstract))
         for _, detail in medline_data.items():
-            fw_tmp.write('"%s","%s","%s","%s","%s","%s","%s","%s","%s"\n' % (detail[self.param_pmid],
-                                                                             detail[self.param_title],
-                                                                             detail[self.param_author],
-                                                                             detail[self.param_date],
-                                                                             detail[self.param_pmc],
-                                                                             detail[self.param_doi],
-                                                                             detail[self.param_language],
-                                                                             detail[self.param_publication_type],
-                                                                             detail[self.param_journal_type],
-                                                                             # detail[self.param_abstract]
-                                                                             ))
+            fw_tmp.write('"%s","%s","%s","%s","%s","%s","%s","%s","%s","%s"\n' % (detail[self.param_pmid],
+                                                                                  detail[self.param_title],
+                                                                                  detail[self.param_author],
+                                                                                  detail[self.param_date],
+                                                                                  detail[self.param_pmc],
+                                                                                  detail[self.param_doi],
+                                                                                  detail[self.param_language],
+                                                                                  detail[self.param_publication_type],
+                                                                                  detail[self.param_journal_type],
+                                                                                  detail[self.param_abstract]))
         fw_tmp.seek(0)
         # fw_tmp.close()
 
