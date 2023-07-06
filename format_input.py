@@ -124,7 +124,7 @@ class FormatInput:
         self.dimensions_col_title = 'Title'
         self.dimensions_col_year = 'PubYear'
         self.dimensions_col_doi = 'DOI'
-        self.dimensions_col_document_type = 'Publication Type'
+        self.dimensions_col_document_type = '' # Doesn't exist
         self.dimensions_col_language = '' # Doesn't exist
         self.dimensions_col_cited_by = 'Times cited'
         self.dimensions_col_abstract = 'Abstract'
@@ -396,7 +396,7 @@ class FormatInput:
                 collect[self.xls_col_abstract] = row[self.dimensions_col_abstract].strip() if row[self.dimensions_col_abstract] else row[self.dimensions_col_abstract]
                 collect[self.xls_col_year] = row[self.dimensions_col_year]
                 collect[self.xls_col_doi] = doi
-                collect[self.xls_col_document_type] = row[self.dimensions_col_document_type].strip() if row[self.dimensions_col_document_type] else row[self.dimensions_col_document_type]
+                collect[self.xls_col_document_type] = None
                 collect[self.xls_col_language] = None
                 collect[self.xls_col_cited_by] = row[self.dimensions_col_cited_by] if row[self.dimensions_col_cited_by] else row[self.dimensions_col_cited_by]
 
