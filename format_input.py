@@ -3,6 +3,7 @@
 import os
 import sys
 import time
+import shutil
 import argparse
 import tempfile
 import traceback
@@ -13,7 +14,7 @@ from colorama import init
 init()
 
 def menu():
-    parser = argparse.ArgumentParser(description = "This script reads the exported (.csv|.txt) files from Scopus, Web of Science, PubMed, PubMed Central or Dimensions databases and turns each of them into a new file with an unique format. This script will ignore duplicated records.", epilog = "Thank you!")
+    parser = argparse.ArgumentParser(description = "This script reads the exported (.csv|.txt) files from Scopus, Web of Science, PubMed, PubMed Central, Dimensions or Google Scholar (exported from Publish or Perish) databases and turns each of them into a new file with an unique format. This script will ignore duplicated records.", epilog = "Thank you!")
     parser.add_argument("-t", "--type_file", choices = ofi.ARRAY_TYPE, required = True, type = str.lower, help = ofi.mode_information(ofi.ARRAY_TYPE, ofi.ARRAY_DESCRIPTION))
     parser.add_argument("-i", "--input_file", required = True, help = "Input file .csv or .txt")
     parser.add_argument("-o", "--output", help = "Output folder")
@@ -67,15 +68,17 @@ class FormatInput:
         self.TYPE_PUBMED = "pubmed"
         self.TYPE_PUBMED_CENTRAL = "pmc"
         self.TYPE_DIMENSIONS = "dimensions"
+        self.TYPE_GOOGLE_SCHOLAR = "scholar"
         self.TYPE_TXT = "txt"
         self.DESCRIPTION_SCOPUS = "Indicates that the file (.csv) was exported from Scopus"
         self.DESCRIPTION_WOS = "Indicates that the file (.csv) was exported from Web of Science"
         self.DESCRIPTION_PUBMED = "Indicates that the file (.csv) was exported from PubMed"
         self.DESCRIPTION_PUBMED_CENTRAL = "Indicates that the file (.txt) was exported from PubMed Central, necessarily in MEDLINE format"
         self.DESCRIPTION_DIMENSIONS = "Indicates that the file (.csv) was exported from Dimensions"
+        self.DESCRIPTION_GOOGLE_SCHOLAR = "Indicates that the file (.csv) was exported from Publish or Perish (Google Scholar option)"
         self.DESCRIPTION_TXT = "Indicates that it is a text file (.txt)"
-        self.ARRAY_TYPE = [self.TYPE_SCOPUS, self.TYPE_WOS, self.TYPE_PUBMED, self.TYPE_PUBMED_CENTRAL, self.TYPE_DIMENSIONS, self.TYPE_TXT]
-        self.ARRAY_DESCRIPTION = [self.DESCRIPTION_SCOPUS, self.DESCRIPTION_WOS, self.DESCRIPTION_PUBMED, self.DESCRIPTION_PUBMED_CENTRAL, self.DESCRIPTION_DIMENSIONS, self.DESCRIPTION_TXT]
+        self.ARRAY_TYPE = [self.TYPE_SCOPUS, self.TYPE_WOS, self.TYPE_PUBMED, self.TYPE_PUBMED_CENTRAL, self.TYPE_DIMENSIONS, self.TYPE_GOOGLE_SCHOLAR, self.TYPE_TXT]
+        self.ARRAY_DESCRIPTION = [self.DESCRIPTION_SCOPUS, self.DESCRIPTION_WOS, self.DESCRIPTION_PUBMED, self.DESCRIPTION_PUBMED_CENTRAL, self.DESCRIPTION_DIMENSIONS, self.DESCRIPTION_GOOGLE_SCHOLAR, self.DESCRIPTION_TXT]
 
         # Scopus
         self.scopus_col_authors = 'Authors'
@@ -128,6 +131,16 @@ class FormatInput:
         self.dimensions_col_language = '' # Doesn't exist
         self.dimensions_col_cited_by = 'Times cited'
         self.dimensions_col_abstract = 'Abstract'
+
+        # Google Scholar (Publish or Perish)
+        self.scholar_col_authors = 'Authors'
+        self.scholar_col_title = 'Title'
+        self.scholar_col_year = 'Year'
+        self.scholar_col_doi = 'DOI'
+        self.scholar_col_document_type = '' # Doesn't exist
+        self.scholar_col_language = '' # Doesn't exist
+        self.scholar_col_cited_by = 'Cites'
+        self.scholar_col_abstract = '' # Doesn't exist
 
         # Xls Summary
         self.XLS_FILE = 'input_<type>.xlsx'
@@ -307,28 +320,93 @@ class FormatInput:
         return collect_papers
 
     def read_csv_file(self):
+
+        def check_columns(df, file_name, arr_columns):
+            its_ok = True
+            for column in arr_columns:
+                if column not in df.columns:
+                    self.show_print("  Column '%s' don't exist, please check file '%s'" % (column, os.path.basename(file_name)), [self.LOG_FILE], font = self.YELLOW)
+                    its_ok = False
+
+            if not its_ok:
+                exit()
+
+        use_temporary = False
+        _input_file_tmp = ''
+
         _input_file = self.INPUT_FILE
         if self.TYPE_FILE == self.TYPE_SCOPUS:
             separator = ','
             _col_doi = self.scopus_col_doi
+
+            arr_columns = [self.scopus_col_authors,
+                           self.scopus_col_title,
+                           self.scopus_col_abstract,
+                           self.scopus_col_year,
+                           self.scopus_col_doi,
+                           self.scopus_col_document_type,
+                           self.scopus_col_language,
+                           self.scopus_col_cited_by]
         elif self.TYPE_FILE == self.TYPE_WOS:
             separator = '\t'
             _col_doi = self.wos_col_doi
+
+            arr_columns = [self.wos_col_authors,
+                           self.wos_col_title,
+                           self.wos_col_abstract,
+                           self.wos_col_year,
+                           self.wos_col_doi,
+                           self.wos_col_document_type,
+                           self.wos_col_language,
+                           self.wos_col_cited_by]
         elif self.TYPE_FILE == self.TYPE_PUBMED:
             separator = ','
             _col_doi = self.pubmed_col_doi
+
+            arr_columns = [self.pubmed_col_authors,
+                           self.pubmed_col_title,
+                           self.pubmed_col_year,
+                           self.pubmed_col_doi]
         elif self.TYPE_FILE == self.TYPE_PUBMED_CENTRAL:
-            _input_file = self.read_medline_file(self.INPUT_FILE)
+            _input_file = self.read_medline_file(_input_file)
             separator = ','
             _col_doi = self.pmc_col_doi
+
+            arr_columns = [self.pmc_col_authors,
+                           self.pmc_col_title,
+                           self.pmc_col_abstract,
+                           self.pmc_col_year,
+                           self.pmc_col_doi,
+                           self.pmc_col_document_type,
+                           self.pmc_col_language]
         elif self.TYPE_FILE == self.TYPE_DIMENSIONS:
+            _input_file = self.read_dimensions_file(_input_file)
             separator = ','
             _col_doi = self.dimensions_col_doi
+
+            arr_columns = [self.dimensions_col_authors,
+                           self.dimensions_col_title,
+                           self.dimensions_col_abstract,
+                           self.dimensions_col_year,
+                           self.dimensions_col_doi,
+                           self.dimensions_col_cited_by]
+        elif self.TYPE_FILE == self.TYPE_GOOGLE_SCHOLAR:
+            separator = ','
+            _col_doi = self.scholar_col_doi
+
+            arr_columns = [self.scholar_col_authors,
+                           self.scholar_col_title,
+                           self.scholar_col_year,
+                           self.scholar_col_doi,
+                           self.scholar_col_cited_by]
 
         df = pd.read_csv(filepath_or_buffer = _input_file, sep = separator, header = 0, index_col = False) # low_memory = False
         # df = df.where(pd.notnull(df), None)
         df = df.replace({np.nan: None})
         # print(df)
+
+        # Check columns
+        check_columns(df, _input_file, arr_columns)
 
         # Get DOIs
         collect_unique_doi = {}
@@ -399,6 +477,15 @@ class FormatInput:
                 collect[self.xls_col_document_type] = None
                 collect[self.xls_col_language] = None
                 collect[self.xls_col_cited_by] = row[self.dimensions_col_cited_by] if row[self.dimensions_col_cited_by] else row[self.dimensions_col_cited_by]
+            elif self.TYPE_FILE == self.TYPE_GOOGLE_SCHOLAR:
+                collect[self.xls_col_authors] = row[self.scholar_col_authors].strip() if row[self.scholar_col_authors] else row[self.scholar_col_authors]
+                collect[self.xls_col_title] = row[self.scholar_col_title].strip() if row[self.scholar_col_title] else row[self.scholar_col_title]
+                collect[self.xls_col_abstract] = None
+                collect[self.xls_col_year] = row[self.scholar_col_year]
+                collect[self.xls_col_doi] = doi
+                collect[self.xls_col_document_type] = None
+                collect[self.xls_col_language] = None
+                collect[self.xls_col_cited_by] = row[self.scholar_col_cited_by] if row[self.scholar_col_cited_by] else row[self.scholar_col_cited_by]
 
             if flag_unique:
                 collect_unique_doi.update({idx + 1: collect})
@@ -836,6 +923,28 @@ class FormatInput:
 
         return fw_tmp
 
+    def read_dimensions_file(self, file):
+        # Check format
+        # Temporary file .csv
+        fw_tmp = tempfile.NamedTemporaryFile(mode = 'w+t',
+                                             encoding = 'utf-8',
+                                             prefix = 'dimensions_output_',
+                                             suffix = '.csv')
+
+        with open(file, 'r', encoding = 'utf-8') as fr:
+            for line in fr:
+                flag_save = True
+                if 'About the data: Exported on' in line and 'Criteria:' in line:
+                    flag_save = False
+
+                if flag_save:
+                    fw_tmp.write(line)
+        fr.close()
+        fw_tmp.seek(0)
+        # fw_tmp.close()
+
+        return fw_tmp
+
 def main():
     try:
         start = ofi.start_time()
@@ -867,11 +976,18 @@ def main():
         elif ofi.TYPE_FILE == ofi.TYPE_DIMENSIONS:
             ofi.show_print("Reading the .csv file from Dimensions", [ofi.LOG_FILE], font = ofi.GREEN)
             input_information = ofi.read_csv_file()
+        elif ofi.TYPE_FILE == ofi.TYPE_GOOGLE_SCHOLAR:
+            ofi.show_print("Reading the .csv file from Publish or Perish (Google Scholar option)", [ofi.LOG_FILE], font = ofi.GREEN)
+            input_information = ofi.read_csv_file()
+
         ofi.show_print("Input file: %s" % ofi.INPUT_FILE, [ofi.LOG_FILE])
         ofi.show_print("", [ofi.LOG_FILE])
 
         ofi.save_summary_xls(input_information)
         ofi.show_print("Output file: %s" % ofi.XLS_FILE, [ofi.LOG_FILE], font = ofi.GREEN)
+        ofi.show_print("  Unique documents: %s" % len(input_information[ofi.XLS_SHEET_UNIQUE]), [ofi.LOG_FILE])
+        ofi.show_print("  Duplicate documents: %s" % len(input_information[ofi.XLS_SHEET_DUPLICATES]), [ofi.LOG_FILE])
+        ofi.show_print("  Documents without DOI: %s" % len(input_information[ofi.XLS_SHEET_WITHOUT_DOI]), [ofi.LOG_FILE])
 
         ofi.show_print("", [ofi.LOG_FILE])
         ofi.show_print(ofi.finish_time(start, "Elapsed time"), [ofi.LOG_FILE])
