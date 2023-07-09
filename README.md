@@ -2,7 +2,7 @@ format-input
 ======================
 [![License](https://poser.pugx.org/badges/poser/license.svg)](./LICENSE)
 
-This script reads the exported (.csv|.txt) files from [Scopus](https://www.scopus.com), [Web of Science](https://clarivate.com/webofsciencegroup/solutions/web-of-science), [PubMed](https://www.ncbi.nlm.nih.gov/pubmed), [PubMed Central](https://www.ncbi.nlm.nih.gov/pmc) or [Dimensions](https://app.dimensions.ai) databases and turns each of them into a new file with an unique format. This script will ignore duplicated records.
+This script reads the exported (.csv|.txt) files from [Scopus](https://www.scopus.com), [Web of Science](https://clarivate.com/webofsciencegroup/solutions/web-of-science), [PubMed](https://www.ncbi.nlm.nih.gov/pubmed), [PubMed Central](https://www.ncbi.nlm.nih.gov/pmc), [Dimensions](https://app.dimensions.ai) or Google Scholar exported from [Publish or Perish](https://harzing.com/resources/publish-or-perish) databases and turns each of them into a new file with an unique format. This script will ignore duplicated records.
 
 ## Table of content
 
